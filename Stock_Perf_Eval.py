@@ -80,7 +80,8 @@ if select_ticker:
     purchase_price=invest_value/ticker_quantity
     
     current_price = data['Adj Close'].iloc[-1]
-    target_price=df[df['Symbol'] == select_ticker]['Target Price'].mean()
+    df['target_value']=df['Quantity']*df['Target Price']
+    target_price=df[df['Symbol'] == select_ticker]['target_value'].sum()/ticker_quantity
     
 
     stock_growth=(data["Adj Close"].pct_change().fillna(0)+1).cumprod()
