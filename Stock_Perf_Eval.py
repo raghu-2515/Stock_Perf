@@ -48,8 +48,8 @@ if uploaded_file:
     hold_time=round((date.today()-datetime.date(purchase_date)).days/365,1)
 select_etf=st.sidebar.text_input("Enter ETF/Index Symbol to Compare",'SPY')
 
-Time_Period=("Hold Period","1y","3y","5y")
-Time_Frame=st.sidebar.selectbox("**Select Timeframe**",Time_Period,index=1)
+Time_Period=("Hold Period","1y","2y","5y")
+Time_Frame=st.sidebar.selectbox("**Select Timeframe**",Time_Period,index=0)
 Time_Interval="1d"
 
 if select_ticker:
