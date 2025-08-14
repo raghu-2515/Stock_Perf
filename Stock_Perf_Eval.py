@@ -4,11 +4,16 @@ from datetime import datetime
 import pandas as pd
 import plotly.express as px
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 import yfinance as yf
 from plotly import graph_objs as go
 
 st.set_page_config(layout='wide', initial_sidebar_state='expanded')
+bg_color = "#ffffff"
+fig_color = "#ffffff"
+
 
 TODAY=date.today().strftime("%Y-%m-%d")
 
@@ -249,3 +254,48 @@ if select_ticker:
     
     with col2:
         plot_box_plot()
+
+    st.markdown("------")
+#  ----------------------------------------------------------
+ 
+    # Compute weekly returns and cumulative weekly growth
+    df['Weekly Returns'] = data['Close'].pct_change(periods=7)
+    df['Cumulative Growth'] = (1 + df['Weekly Returns']).cumprod() - 1
+
+    # Set up the figure with 1 row and 2 columns
+    fig, axes = plt.subplots(1, 2, figsize=(16, 5))
+    fig.suptitle(f"{ticker_name} Historical Summary", fontsize=16)
+
+    for ax in axes:
+        ax.set_facecolor(bg_color)
+    fig.patch.set_facecolor(fig_color)
+
+    
+    # 1. Closing Price Trend Over Time
+    axes[0].plot(data.index, data['Close'], label='Closing Price', color='blue')
+    axes[0].axhline(current_price, color='blue', linestyle='--', alpha=0.7,
+                    label=f'Current Price: {current_price:.2f}')
+    axes[0].axhline(purchase_price, color='red', linestyle='--', alpha=0.7,
+                    label=f'Purchase Price: {purchase_price:.2f}')
+    axes[0].set_title("Closing Price Trend Over Time")
+    axes[0].set_xlabel("Date")
+    axes[0].set_ylabel("Price (USD)")
+    axes[0].legend()
+
+    # 2. Closing Price Distribution (Only KDE Fit)
+    sns.kdeplot(data=data, x="Close", hue="Year", ax=axes[1], palette="tab10", fill=False)
+    axes[1].axvline(current_price, color='blue', linestyle='--', alpha=0.7,
+                    label=f'Current Price: {current_price:.2f}')
+    axes[1].axvline(purchase_price, color='red', linestyle='--', alpha=0.7,
+                    label=f'Purchase Price: {purchase_price:.2f}')
+    axes[1].set_title("Closing Price Distribution (KDE Fit) by Year")
+    axes[1].set_xlabel("Closing Price")
+    axes[1].set_ylabel("Density")
+    # axes[1].legend()  # Uncomment if you want the legend
+
+    # Adjust layout
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+
+
+    # Display the plots in Streamlit
+    st.pyplot(fig)
